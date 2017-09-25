@@ -1,0 +1,4 @@
+orocos_source
+export RTT_COMPONENT_PATH=/home/sgo/git-repos/rtt-fri-cartesian-impedance/build/orocos/:$RTT_COMPONENT_PATH 
+export RTT_COMPONENT_PATH=/home/sgo/git-repos/ManipulabilityHRI/rtt-fri-linear-variable-stiffness/build/orocos/:$RTT_COMPONENT_PATH 
+export RTT_COMPONENT_PATH=/home/sgo/git-repos/ManipulabilityHRI/rtt-fri-cartesian-pose-manager/build/orocos/:$RTT_COMPONENT_PATH 

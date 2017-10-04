@@ -8,6 +8,8 @@ ManipEstimator::ManipEstimator(std::string const& name) : TaskContext(name){
     q_hand_init.resize(HAND_DOF);
     q_hand_out.resize(HAND_DOF);
 
+    //me_axis= {0,0,0};
+
     hand_base = "left_shoulder_forward_link";
     hand_eef = "left_hand_link";
     hand_urdf_path = "/home/sgo/git-repos/ManipulabilityHRI/hand.urdf";
@@ -60,10 +62,6 @@ ManipEstimator::ManipEstimator(std::string const& name) : TaskContext(name){
 
     }
 
-
-
-
-
 }
 
 
@@ -76,10 +74,12 @@ bool ManipEstimator::configureHook(){
 
     fk_solver = new KDL::ChainFkSolverPos_recursive(robot_chain);
 
-
-    //q_hand_init = {0,0,0,0,0};  // TODO, check and make sensible quess
-
-
+    //q_hand_init.data() = {0,0,0,0,0};  // TODO, check and make sensible quess
+    q_hand_init.data(0) = 0;
+    q_hand_init.data(1) = 0;
+    q_hand_init.data(2) = 0;
+    q_hand_init.data(3) = 0;
+    q_hand_init.data(4) = 0;
 
 }
 
@@ -95,49 +95,52 @@ void ManipEstimator::updateHook(){
 
     // Doing the forward Kinematics for the KUKA LWR
 
-
     for(int i = 0; i < DOF_SIZE; i++){
         q(i) = cur_joint_angles_in_data.angles.data()[i];
     }
-   // q.data=cur_joint_angles_in_data.angles;
+    //q.data=cur_joint_angles_in_data.angles;
 
     fk_solver->JntToCart(q,cart_pose_out); // Solves the Forward kinematics of the robot with respect to the current joint config
 
 
-    //  New Cartesian tool fram wrt camera fram is cur_base_pose_in_data * cart_pose_out
+    /** New Cartesian tool fram wrt camera fram is cur_base_pose_in_data * cart_pose_out **/
     cur_target_cart_pose = cart_pose_out * cur_base_pose_in_data; // This is the target pos for the human hand
 
-
-    // Once you have the cartesian pose calculate the hand joint angles
-    
-    
-    // Read the current shoulder position
-    
-    cur_shoulder_pose_in_flow = cur_shoulder_pose_in_port.read(cur_shoulder_pose_in_data); // This is wrt to camera frame
+    cur_shoulder_pose_in_flow = cur_shoulder_pose_in_port.read(cur_shoulder_pose_in_data); // // Read the current shoulder position
 
     // Creating a static segment at the new shoulder position
-
     KDL::Segment("shoulder_base",KDL::Joint(KDL::Joint::None), cur_base_pose_in_data);
 
     // Adding the hand tree to the segment named "shoulder_base"
-
     hand_tree_updated.addChain(hand_chain,"shoulder_base");
     hand_tree_updated.getChain("shoulder_base",hand_eef,hand_chain_updated);
 
+
     // Solving for the new chain
-
-
     KDL::ChainIkSolverPos_LMA ik_solver = KDL::ChainIkSolverPos_LMA(hand_chain_updated,1e-5,100,1e-15);
-
-    //KDL::ChainIkSolverPos iksolver(hand_chain_updated);
-    //ik_solver = new KDL::ChainIkSolverPos(hand_chain_updated); // ToDo:: Delete this later, check with Pouya
-
     ik_solver.CartToJnt(q_hand_init,cur_target_cart_pose,q_hand_out);
+
     q_hand_init = q_hand_out;
 
     /** Solve for the Jacobian **/
 
+    jnt_to_jac_solver = new KDL::ChainJntToJacSolver(hand_chain_updated);
+    jnt_to_jac_solver->JntToJac(q_hand_out,hand_jac);
 
+
+    /**  SVD **/
+
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd_r(hand_jac.data.block<3,7>(0,0),Eigen::ComputeThinU |  Eigen::ComputeThinV);
+
+
+    me_axis = svd_r.matrixU() * svd_r.singularValues();
+
+
+    manipulability = sqrt((hand_jac.data.block<3,7>(0,0)*hand_jac.data.block<3,7>(0,0).transpose()).determinant());
+
+
+    manip_elipse_out_port.write(me_axis);
+    manip_measure_out_port.write(manipulability);
 
 }
 
@@ -150,11 +153,6 @@ void ManipEstimator::stopHook() {
 void ManipEstimator::cleanupHook() {
 }
 
-//void ManipEstimator::createKinChain(cur_shoulder_pose_in_data){
-
-
-
-//}
 
 
 
@@ -163,12 +161,15 @@ void ManipEstimator::initializePorts(){
 
     /** OUTPUT PORTS    **/
 
-    test_data = double();
-    test_port.setName("test_port");
-    test_port.setDataSample(test_data);
-    ports()->addPort(test_port);
+    manip_elipse_out_data = Eigen::Vector3d();
+    manip_elipse_out_port.setName("manip_elipse_out_port");
+    manip_elipse_out_port.setDataSample(manip_elipse_out_data);
+    ports()->addPort(manip_elipse_out_port);
 
-
+    manip_measure_out_data = double();
+    manip_measure_out_port.setName("manip_measure_out_port");
+    manip_measure_out_port.setDataSample(manip_measure_out_data);
+    ports()->addPort(manip_measure_out_port);
 
     cur_shoulder_pose_in_flow = RTT::NoData;
     cur_shoulder_pose_in_port.setName("cur_base_pose_in_port");

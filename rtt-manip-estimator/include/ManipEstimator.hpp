@@ -14,7 +14,7 @@
 #include <kdl/chainiksolver.hpp>
 
 #include <kdl/chainiksolverpos_lma.hpp>
-
+#include <kdl/chainjnttojacsolver.hpp>
 #include <kdl/tree.hpp>
 #include <urdf/model.h>
 #define DOF_SIZE 7
@@ -35,11 +35,11 @@ private:
 
     // Manipulability measure port
 
-    RTT::OutputPort<Eigen::Vector4f>    manip_measure_out_port;
-    Eigen::Vector4f                     manip_measure_out_data;
+    RTT::OutputPort<Eigen::Vector3d>    manip_elipse_out_port;
+    Eigen::Vector3d                     manip_elipse_out_data;
 
-    RTT::OutputPort<double>             test_port;
-    double                              test_data;
+    RTT::OutputPort<double>             manip_measure_out_port;
+    double                              manip_measure_out_data;
 
 
     /** INPUT PORTS **/
@@ -81,9 +81,15 @@ private:
     KDL::Frame cart_pose_out, cur_target_cart_pose;
     KDL::JntArray q, q_hand_init, q_hand_out;
 
+    KDL::ChainJntToJacSolver* jnt_to_jac_solver;
+
+    KDL::Jacobian hand_jac;
+
     KDL::Tree hand_tree_updated;
     KDL::Chain hand_chain_updated;
 
+    double manipulability ;
+    Eigen::Vector3d  me_axis;
     void createKinChain(KDL::Frame);
 
 };

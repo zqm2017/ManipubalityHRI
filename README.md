@@ -1,9 +1,9 @@
 # ManipulabilityHRI
 ## Information
-This is a test component to be used for [cartesian impedance](https://github.com/Pouya-moh/rtt-fri-cartesian-impedance) with Kuka LWR 4+.
+This repo has components required for the Adaptation scheme using KUKA LWR
 
 ## Usage
-tba
+
 
 ## TODO
-tba
+Extenstion using the task pre-knowledge

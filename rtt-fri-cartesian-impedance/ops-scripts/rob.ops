@@ -1,0 +1,14 @@
+import("eigen_typekit")
+import("rst-rt_typekit")
+import("kdl_typekit")
+
+import("rtt-fri-cartesian-impedance")
+loadComponent("lwr","RttFriCartImpedCtrl")
+setActivity("lwr",0.001,HighestPriority,ORO_SCHED_RT)
+
+lwr.server_ip = "192.168.0.200"
+lwr.host_ip = "192.168.0.200"
+lwr.port = 49938
+
+lwr.configure
+lwr.start

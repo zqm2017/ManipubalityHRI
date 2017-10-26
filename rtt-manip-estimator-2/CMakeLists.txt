@@ -11,8 +11,10 @@ if (NOT OROCOS-RTT_FOUND)
   message (FATAL_ERROR "\nCould not find Orocos. Please use the shell command\n 'source orocos_toolchain/env.sh' and then run cmake again.")
 endif()
 
-
-
+#set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} /opt/ros/kinetic")
+find_package(kdl_conversions REQUIRED)
+find_package(geometry_msgs REQUIRED)
+include_directories(${geometry_msgs_INCLUDE_DIRS})
 
 find_package(RST-RT REQUIRED)
 IF (RST-RT_FOUND)
@@ -57,6 +59,7 @@ orocos_component(${CMAKE_PROJECT_NAME}
 target_link_libraries(${CMAKE_PROJECT_NAME}
 						${RST-RT_LIBRARIES}
                         ${orocos_kdl_LIBRARIES}  ${urdfdom_LIBRARIES}
+                        ${kdl_conversions_LIBRARIES}
 					 )
 
 orocos_generate_package()

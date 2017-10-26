@@ -1,0 +1,21 @@
+import("eigen_typekit")
+import("rst-rt_typekit")
+import("kdl_typekit")
+import("rtt-manip-estimator")
+
+loadComponent("manip","ManipEstimator")
+
+setActivity("manip",0.002,HighestPriority,ORO_SCHED_RT)
+
+
+manip.configure
+
+manip.userHeight  = 140.0;
+manip.userArm1    = 26.0;
+manip.userArm2    = 25.0;
+manip.userDist    = 28.0;
+manip.hand_base   = "left_shoulder_forward_link";
+manip.hand_eef    = "left_hand_link";
+manip.urdf_path   = "/home/sgo/git-repos/ManipulabilityHRI/hand.urdf";
+
+manip.start

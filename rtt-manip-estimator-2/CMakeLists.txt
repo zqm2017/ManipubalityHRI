@@ -11,10 +11,18 @@ if (NOT OROCOS-RTT_FOUND)
   message (FATAL_ERROR "\nCould not find Orocos. Please use the shell command\n 'source orocos_toolchain/env.sh' and then run cmake again.")
 endif()
 
-#set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} /opt/ros/kinetic")
-find_package(kdl_conversions REQUIRED)
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} /opt/ros/kinetic")
+#find_package(kdl_conversions REQUIRED)
 find_package(geometry_msgs REQUIRED)
-include_directories(${geometry_msgs_INCLUDE_DIRS})
+IF (geometry_msgs_FOUND)
+        message(STATUS "geometry_msgs found. Version: ${geometry_msgs_VERSION}")
+        include_directories(BEFORE SYSTEM ${geometry_msgs_INCLUDE_DIRS})
+        add_definitions(${geometry_msgs_CFLAGS})
+        link_directories(${geometry_msgs_LIBRARY_DIR})
+ENDIF()
+
+
+#include_directories(${geometry_msgs_INCLUDE_DIRS})
 
 find_package(RST-RT REQUIRED)
 IF (RST-RT_FOUND)
@@ -46,7 +54,6 @@ ENDIF()
 
 # orocos_install_headers(includes)
 
-
 add_subdirectory(urdf-to-kdl)
 include_directories(${KDL_Parser_INCLUDE_DIRS})
 
@@ -55,10 +62,11 @@ orocos_component(${CMAKE_PROJECT_NAME}
 				 ${PROJECT_SOURCE_DIR}/src/ManipEstimator.cpp
 				 ${PROJECT_SOURCE_DIR}/include/ManipEstimator.hpp
 				)
- target_link_libraries(${CMAKE_PROJECT_NAME} KDL_Parser)
+#target_link_libraries(${CMAKE_PROJECT_NAME} KDL_Parser)
 target_link_libraries(${CMAKE_PROJECT_NAME}
 						${RST-RT_LIBRARIES}
                         ${orocos_kdl_LIBRARIES}  ${urdfdom_LIBRARIES}
+                        KDL_Parser
                         ${kdl_conversions_LIBRARIES}
 					 )
 

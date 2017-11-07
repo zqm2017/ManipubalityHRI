@@ -1,6 +1,5 @@
 #ifndef MANIPESTIMATOR_HPP
 #define MANIPESTIMATOR_HPP
-
 #include <rtt/RTT.hpp>
 #include <rst-rt/kinematics/JointAngles.hpp>
 #include <rst-rt/dynamics/JointTorques.hpp>
@@ -12,7 +11,7 @@
 #include <kdl_parser/kdl_parser.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainiksolver.hpp>
-
+#include <geometry_msgs/Pose.h>
 #include <rst-rt/geometry/Pose.hpp>
 #include <kdl/chainiksolverpos_lma.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
@@ -50,13 +49,13 @@ private:
     // Shoulder position with respect to camera frame
 
 
-    RTT::InputPort<KDL::Frame> cur_shoulder_pose_in_port;
+    RTT::InputPort<geometry_msgs::Pose> cur_shoulder_pose_in_port;
     RTT::FlowStatus                       cur_shoulder_pose_in_flow;
-    KDL::Frame                 cur_shoulder_pose_in_data;
+    geometry_msgs::Pose                cur_shoulder_pose_in_data;
 
-    RTT::InputPort<KDL::Frame> cur_grip_pose_in_port;
+    RTT::InputPort<geometry_msgs::Pose> cur_grip_pose_in_port;
     RTT::FlowStatus                       cur_grip_pose_in_flow;
-    KDL::Frame                 cur_grip_pose_in_data;
+    geometry_msgs::Pose                 cur_grip_pose_in_data;
 
 
 
@@ -86,6 +85,10 @@ private:
     double manipulability ;
     Eigen::Vector3d  me_axis;
     void createKinChain(KDL::Frame);
+
+    KDL::Vector shoulder_pos, grip_pos;
+
+    KDL::Rotation shoulder_rot, grip_rot;
 
 };
 #endif

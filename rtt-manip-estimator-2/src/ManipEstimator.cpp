@@ -67,8 +67,30 @@ void ManipEstimator::updateHook(){
     // Kinematic chain should be fitted between these two poses
     // ToDo:  Get the default initial values for the experiment
 
+
+    // Create a KDL from from the geometry pose
+
+    //KDL::Vector shoulder_pos;
+    shoulder_pos.x(cur_shoulder_pose_in_data.position.x);
+    shoulder_pos.y(cur_shoulder_pose_in_data.position.y);
+    shoulder_pos.z(cur_shoulder_pose_in_data.position.z);
+
+
+    shoulder_rot.Quaternion(cur_shoulder_pose_in_data.orientation.x,cur_shoulder_pose_in_data.orientation.y,cur_shoulder_pose_in_data.orientation.z,cur_shoulder_pose_in_data.orientation.w);
+
+
+    grip_pos.x(cur_grip_pose_in_data.position.x);
+    grip_pos.y(cur_grip_pose_in_data.position.y);
+    grip_pos.z(cur_grip_pose_in_data.position.z);
+
+    grip_rot.Quaternion(cur_grip_pose_in_data.orientation.x,cur_grip_pose_in_data.orientation.y,cur_grip_pose_in_data.orientation.z,cur_grip_pose_in_data.orientation.w);
+
+    KDL::Frame shoulder_frame(shoulder_rot,shoulder_pos);
+
+    KDL::Frame grip_frame(grip_rot,grip_pos);
+
     // Creating a static segment at the new shoulder position
-    KDL::Segment("shoulder_base",KDL::Joint(KDL::Joint::None), cur_shoulder_pose_in_data);
+    KDL::Segment("shoulder_base",KDL::Joint(KDL::Joint::None), shoulder_frame);
 
     // Adding the hand tree to the segment named "shoulder_base"
     hand_tree_updated.addChain(hand_chain,"shoulder_base");
@@ -77,7 +99,7 @@ void ManipEstimator::updateHook(){
 
     // Solving for the new chain
     KDL::ChainIkSolverPos_LMA ik_solver = KDL::ChainIkSolverPos_LMA(hand_chain_updated,1e-5,100,1e-15);
-    ik_solver.CartToJnt(q_hand_init,cur_grip_pose_in_data,q_hand_out);
+    ik_solver.CartToJnt(q_hand_init,grip_frame,q_hand_out);
 
     q_hand_init = q_hand_out;
 
@@ -130,14 +152,15 @@ void ManipEstimator::initializePorts(){
     manip_measure_out_port.setDataSample(manip_measure_out_data);
     ports()->addPort(manip_measure_out_port);
 
+    /** INPUT PORTS **/
     cur_shoulder_pose_in_flow = RTT::NoData;
     cur_shoulder_pose_in_port.setName("cur_shoulder_pose_in_port");
-    cur_shoulder_pose_in_data = KDL::Frame();
+    cur_shoulder_pose_in_data = geometry_msgs::Pose();
     ports()->addPort(cur_shoulder_pose_in_port);
 
     cur_grip_pose_in_flow = RTT::NoData;
     cur_grip_pose_in_port.setName("cur_grip_pose_in_port");
-    cur_grip_pose_in_data = KDL::Frame();
+    cur_grip_pose_in_data = geometry_msgs::Pose();
     ports()->addPort(cur_grip_pose_in_port);
 
 
@@ -156,4 +179,5 @@ void ManipEstimator::initializePorts(){
  * If you have put your component class
  * in a namespace, don't forget to add it here too:
  */
+//ORO_CREATE_COMPONENT_TYPE()
 ORO_CREATE_COMPONENT(ManipEstimator)

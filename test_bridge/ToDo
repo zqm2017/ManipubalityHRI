@@ -1,0 +1,27 @@
+import("rtt_geometry_msgs")
+import("rtt_ros")
+import("/home/sgo/git_repos/ManipubalityHRI/test_bridge/build/orocos/gnulinux/test_bridge")
+import("rtt_rosnode")
+loadComponent("tt","test_bridge")
+setActivity("tt",0.001,HighestPriority,ORO_SCHED_RT)
+tt.configure
+tt.start
+
+output port of ros message type (hpp)
+RTT::OutputPort<visualization_msgs::Marker> left_arm_manip_output_port;
+visualization_msgs::Marker left_arm_manip_data;
+
+cpp
+right_arm_manip_output_port.createStream(rtt_roscomm::topic("visualization_marker"));
+right_arm_manip_data.header.stamp = rtt_rosclock::host_now();
+right_arm_manip_output_port.write(right_arm_manip_data);
+
+
+
+cmake .. -DCMAKE_PREFIX_PATH="~/citk/systems/cogimon-minimal-nightly;/opt/ros/kinetic/" -DCMAKE_BUILD_TYPE=RelWithDebugInfo
+
+
+export RTT_COMPONENT_PATH=$RTT_COMPONENT_PATH:/opt/ros/kinetic/lib/orocos/
+
+export ROS_MASTER_URI=http://localhost:11311
+

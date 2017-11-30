@@ -40,5 +40,8 @@ private:
     double manip_factor, manip_min, manip_max, stiffness_min, stiffness_max;
 
 
+
+    double _filtered_stiffness,alpha,_a,_b,_xml,_stiffness_counter;
+    std::vector<double> _stiffness_vector_in,_stiffness_vector_out;
 };
 #endif

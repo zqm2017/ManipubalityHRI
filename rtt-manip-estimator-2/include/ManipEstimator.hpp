@@ -17,8 +17,8 @@
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl/tree.hpp>
 #include <urdf/model.h>
-#define DOF_SIZE 7
-#define HAND_DOF 5
+#include <sensor_msgs/JointState.h>
+
 class ManipEstimator : public RTT::TaskContext{
 public:
     ManipEstimator(std::string const& name);
@@ -89,6 +89,16 @@ private:
     KDL::Vector shoulder_pos, grip_pos;
 
     KDL::Rotation shoulder_rot, grip_rot;
+
+    Eigen::MatrixXd weights;
+
+    // Output port for the visualization of joint states into ROS
+    RTT::OutputPort<sensor_msgs::JointState> arm_conf_out_port;
+    sensor_msgs::JointState arm_conf_out_data;
+
+    // Output port for manipulability visualization
+    RTT::OutputPort<double> manip_ros_out_port;
+    double manip_ros_out_data;
 
 };
 #endif

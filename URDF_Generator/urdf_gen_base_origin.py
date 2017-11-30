@@ -105,7 +105,7 @@ printCylinderLink('left_lower_arm_link',0,0,0,0,0,0,0.01,lower_arm_len,0.9,0.9,0
 
 printSphericalLink('left_wrist_link',0,0,0,1.57,0,0,0.03,255,0,0,1.0,'Red')
 
-printBoxLink('left_hand_link',0,0,0,0,0,0,0.03,0.01,0.06,0.7,0.7,0.7,1.0,'Grey1')
+#printBoxLink('left_hand_link',0,0,0,0,0,0,0.03,0.01,0.06,0.7,0.7,0.7,1.0,'Grey1')
 
 
 file = open("gen_arm.urdf","a")

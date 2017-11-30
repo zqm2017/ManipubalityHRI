@@ -7,9 +7,10 @@ ManipToStiffness::ManipToStiffness(std::string const& name) : TaskContext(name){
 
     stiffness_max = 2200; // ToDo: come up with reasonable values
     stiffness_min = 10;
-    manip_max = 4;
-    manip_min = 0.01;
-
+    manip_max = 0.040;
+    manip_min = 0.010;
+    _stiffness_counter= 0;
+    alpha=0.010;
 
 
     addProperty("manip_factor",manip_factor).doc("The manipulability factor for chaning stiffness");
@@ -46,15 +47,37 @@ void ManipToStiffness::updateHook(){
     else if(manip_measure_in_data <= manip_max && manip_measure_in_data >= manip_min)
     {
 
-        manip_factor = ((stiffness_max-stiffness_min)/(manip_min-manip_max))*manip_measure_in_data+stiffness_max;
+        manip_factor = ((stiffness_min-stiffness_max)/(manip_max-manip_min))*(manip_measure_in_data-manip_min)+stiffness_max;
 
     }
+
+    //std::cout<<" Stiffness: "<< manip_factor<<std::endl;
+
+
+    /*// Filtering using lowpass filter
+    _stiffness_vector_in.push_back(manip_factor);
+    //_stiffness_vector_in(_stiffness_counter) = _stiffness;
+    _a = (1-alpha)/(1+alpha);
+    _b = (1-_a)/2;
+    _xml= 0.9;
+    if(_stiffness_counter==0)
+        manip_factor = _stiffness_vector_in[_stiffness_counter]+_xml;
+    else
+        manip_factor = _b*_stiffness_vector_in[_stiffness_counter]+ _b*_stiffness_vector_in[_stiffness_counter-1]+ _a*_stiffness_vector_out[_stiffness_counter-1];
+
+    _stiffness_vector_out.push_back(manip_factor);
+    //_stiffness_vector_out(_stiffness_counter) = _filtered_stiffness;
+    _stiffness_counter++;
+*/
+
+
 
 
     for(int i = 0 ; i < 6 ; ++i){
         cart_stiffdamp_out_data.stiffness(i) = manip_factor;
 
     }
+    RTT::log(RTT::Critical) << manip_factor<< " :Stiffness"<<RTT::endlog();
 
     // Filter these output later
     cart_stiffdamp_out_port.write(cart_stiffdamp_out_data);

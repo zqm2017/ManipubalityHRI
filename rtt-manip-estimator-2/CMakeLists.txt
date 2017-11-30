@@ -21,6 +21,9 @@ IF (geometry_msgs_FOUND)
         link_directories(${geometry_msgs_LIBRARY_DIR})
 ENDIF()
 
+INCLUDE_DIRECTORIES(/home/sgo/ws/underlay/src/rtt_ros_integration/rtt_rosclock/include/)
+INCLUDE_DIRECTORIES(/home/sgo/ws/underlay/src/rtt_ros_integration/rtt_roscomm/include/)
+link_directories(/home/sgo/ws/underlay/devel/lib)
 
 #include_directories(${geometry_msgs_INCLUDE_DIRS})
 
@@ -64,10 +67,13 @@ orocos_component(${CMAKE_PROJECT_NAME}
 				)
 #target_link_libraries(${CMAKE_PROJECT_NAME} KDL_Parser)
 target_link_libraries(${CMAKE_PROJECT_NAME}
-						${RST-RT_LIBRARIES}
-                        ${orocos_kdl_LIBRARIES}  ${urdfdom_LIBRARIES}
+                        ${RST-RT_LIBRARIES}
+                        ${orocos_kdl_LIBRARIES}
+                        ${urdfdom_LIBRARIES}
                         KDL_Parser
                         ${kdl_conversions_LIBRARIES}
+                        librtt_rostopic-gnulinux.so
+                        librtt_rosclock-gnulinux.so
 					 )
 
 orocos_generate_package()

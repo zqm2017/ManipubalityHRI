@@ -1,4 +1,9 @@
-orocos_source
-export RTT_COMPONENT_PATH=/home/sgo/git-repos/rtt-fri-cartesian-impedance/build/orocos/:$RTT_COMPONENT_PATH 
-export RTT_COMPONENT_PATH=/home/sgo/git-repos/ManipulabilityHRI/rtt-fri-linear-variable-stiffness/build/orocos/:$RTT_COMPONENT_PATH 
-export RTT_COMPONENT_PATH=/home/sgo/git-repos/ManipulabilityHRI/rtt-fri-cartesian-pose-manager/build/orocos/:$RTT_COMPONENT_PATH 
+source ~/ws/underlay/devel/setup.bash
+export RTT_COMPONENT_PATH=$RTT_COMPONENT_PATH:/home/sgo/citk/systems/cogimon-minimal-nightly/lib/orocos:
+
+
+export RTT_COMPONENT_PATH=/home/sgo/git_repos/ManipubalityHRI/rtt-fri-linear-variable-stiffness/build/orocos/:$RTT_COMPONENT_PATH 
+export RTT_COMPONENT_PATH=/home/sgo/git_repos/ManipubalityHRI/rtt-fri-cartesian-impedance/build/orocos/:$RTT_COMPONENT_PATH 
+export RTT_COMPONENT_PATH=/home/sgo/git_repos/ManipubalityHRI/rtt-manip-estimator-2/build/orocos/:$RTT_COMPONENT_PATH 
+export RTT_COMPONENT_PATH=/home/sgo/git_repos/ManipubalityHRI/rtt-fri-cartesian-pose-manager/build/orocos/:$RTT_COMPONENT_PATH 
+export RTT_COMPONENT_PATH=/home/sgo/git_repos/ManipubalityHRI/rtt-manip-to-stiffness/build/orocos/:$RTT_COMPONENT_PATH 

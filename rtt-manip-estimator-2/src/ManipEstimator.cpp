@@ -161,7 +161,7 @@ void ManipEstimator::updateHook(){
 
     Eigen::Vector3d u (cur_grip_pose_in_data.position.x,cur_grip_pose_in_data.position.x,cur_grip_pose_in_data.position.x);
     _u = u/u.norm();
-    double alpha = u.transpose()*((hand_jac.data.block<3,DOF_HAND>(0,0)*hand_jac.data.block<3,DOF_HAND>(0,0).transpose()))*u;
+    double alpha = 1/sqrt(u.transpose()*((hand_jac.data.block<3,DOF_HAND>(0,0)*hand_jac.data.block<3,DOF_HAND>(0,0).transpose()))*u);
 
     RTT::log(RTT::Info) << "Force Transmission Ratio" << alpha <<std::endl;
 

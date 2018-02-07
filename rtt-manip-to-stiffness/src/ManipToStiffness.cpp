@@ -5,10 +5,11 @@
 ManipToStiffness::ManipToStiffness(std::string const& name) : TaskContext(name){
     initializePorts();
 
-    stiffness_max = 2200; // ToDo: come up with reasonable values
+    stiffness_max = 5000; // ToDo: come up with reasonable values
     stiffness_min = 10;
-    manip_max = 0.040;
-    manip_min = 0.010;
+    manip_max = 0.037;
+    manip_min = 0.007;
+    max_rot_stiff = 300;
     _stiffness_counter= 0;
     alpha=0.010;
 
@@ -32,6 +33,8 @@ bool ManipToStiffness::startHook(){
     return true;
 }
 
+
+// Apply differential stiffness limits are XYZ and ABC : TODO
 void ManipToStiffness::updateHook(){
 
     manip_measure_in_flow = manip_measure_in_port.read(manip_measure_in_data);
@@ -73,11 +76,16 @@ void ManipToStiffness::updateHook(){
 
 
 
-    for(int i = 0 ; i < 6 ; ++i){
+    for(int i = 0 ; i < 3 ; ++i){   // Setting stiffness for x,y,y
         cart_stiffdamp_out_data.stiffness(i) = manip_factor;
 
     }
-    RTT::log(RTT::Critical) << manip_factor<< " :Stiffness"<<RTT::endlog();
+
+    for(int i= 3; i < 6 ; ++i){
+
+        cart_stiffdamp_out_data.stiffness(i) = manip_factor*(max_rot_stiff/stiffness_max);
+    }
+   // RTT::log(RTT::Critical) << manip_factor<< " :Stiffness  ]  ["<<manip_measure_in_data<<"  :Manip]"<<RTT::endlog();
 
     // Filter these output later
     cart_stiffdamp_out_port.write(cart_stiffdamp_out_data);

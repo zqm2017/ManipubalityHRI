@@ -1,0 +1,133 @@
+import("eigen_typekit")
+import("rst-rt_typekit")
+import("kdl_typekit")
+
+
+
+
+import("rtt-fri-cartesian-impedance")
+loadComponent("lwr","RttFriCartImpedCtrl")
+setActivity("lwr",0.002,HighestPriority,ORO_SCHED_RT)
+
+lwr.server_ip = "192.168.0.200"
+lwr.host_ip = "192.168.0.21"
+lwr.port = 49938
+
+lwr.configure
+lwr.start
+
+var ConnPolicy cp
+
+var rstrt.kinematics.JointAngles resolution = rstrt.kinematics.JointAngles(7)
+
+
+resolution.angles[0] = 0.75
+resolution.angles[1] = 0.21
+resolution.angles[2] = -0.6
+resolution.angles[3] = -1.6
+resolution.angles[4] = -0.17
+resolution.angles[5] = -1.5
+resolution.angles[6] = -0.3
+
+
+
+var eigen_vector cart_stiff = eigen_vector(6)
+cart_stiff[0] = 2200.00
+cart_stiff[1] = 2200.00
+cart_stiff[2] = 2200.00
+cart_stiff[3] = 2200.00
+cart_stiff[4] = 2200.00
+cart_stiff[5] = 2200.00
+
+
+var eigen_vector cart_damp = eigen_vector(6)
+cart_damp[0] = 0.7
+cart_damp[1] = 0.7
+cart_damp[2] = 0.7
+cart_damp[3] = 0.7
+cart_damp[4] = 0.7
+cart_damp[5] = 0.7
+
+#import("/home/kukalwr/git_repos/ManipubalityHRI/rtt-fri-cartesian-pose-manager/build/orocos/gnulinux/rtt-fri-cartesian-pose-manager")
+import("rtt-fri-cartesian-pose-manager")
+loadComponent("test","CartesianPoseManager")
+setActivity("test",0.002,HighestPriority,ORO_SCHED_RT)
+test.configure
+test.setRedundancyRes(resolution)
+test.setCartesianStiffDamp(cart_stiff,cart_damp)
+
+
+import("rtt_geometry_msgs")
+import("rtt_ros")
+import("rtt_rosnode")
+import("rtt_sensor_msgs")
+import("rtt_visualization_msgs")
+
+
+import("rtt-manip-estimator-2")
+loadComponent("manip","ManipEstimator")
+setActivity("manip",0.001,HighestPriority,ORO_SCHED_RT)
+manip.configure
+
+import("/home/kukalwr/git_repos/ManipubalityHRI/test_bridge/build/orocos/gnulinux/test_bridge")
+loadComponent("tt","test_bridge")
+setActivity("tt",0.001,HighestPriority,ORO_SCHED_RT)
+
+tt.configure
+tt.start
+
+
+connect("tt.outport_grip","manip.cur_grip_pose_in_port",cp)
+
+connect("tt.outport_shoulder","manip.cur_shoulder_pose_in_port",cp)
+
+manip.start
+
+
+
+import("rtt-const-stiffness")
+loadComponent("stiff","ConstStiffness")
+setActivity("stiff",0.001,HighestPriority,ORO_SCHED_RT)
+stiff.configure
+stiff.start
+
+connect("manip.manip_measure_out_port","stiff.manip_measure_in_port",cp)
+
+
+connect("stiff.cart_stiffdamp_out_port", "test.des_cart_stiffdamp_in_port",cp)
+
+connect("test.cur_cart_pose_in_port","lwr.current_cartesian_pose",cp)
+connect("test.cart_pose_loop_out_port", "lwr.des_cart_pose",cp)
+connect("test.cart_pose_out_port", "lwr.des_cart_pose",cp)
+
+connect("test.cart_stiffdamp_out_port", "lwr.des_stiff_damp",cp)
+
+
+import("rtt-jr3-ft-sensor")
+loadComponent("jr3","RTT_JR3")
+setActivity("jr3",0.001,HighestPriority,ORO_SCHED_RT)
+jr3.configure
+jr3.start
+
+loadComponent("logger", "OCL::FileReporting")
+loadService("logger", "marshalling")
+connectPeers("logger", "manip")
+connectPeers("logger", "tt")
+connectPeers("logger", "jr3")
+connectPeers("logger","test")
+logger.reportPort("manip","manip_measure_out_port")
+logger.reportPort("tt","outport_grip")
+logger.reportPort("jr3","ForceTorqueOutputPort")
+logger.reportPort("test","cart_pose_loop_out_port")
+logger.configure
+#logger.start
+
+
+
+
+test.start
+#varStiff.start
+#lwr.start
+# var KDL.Rotation rot = KDL.Rotation(0.0,0.0,0.0)
+# var KDL.Vector pos = KDL.Vector(-0.4   ,-0.4   ,0.75 )
+# test.setCartesianPose(pos, rot, 15)

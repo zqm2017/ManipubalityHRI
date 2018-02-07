@@ -48,7 +48,7 @@ cart_damp[3] = 0.7
 cart_damp[4] = 0.7
 cart_damp[5] = 0.7
 
-#import("/home/sgo/git_repos/ManipubalityHRI/rtt-fri-cartesian-pose-manager/build/orocos/gnulinux/rtt-fri-cartesian-pose-manager")
+#import("/home/kukalwr/git_repos/ManipubalityHRI/rtt-fri-cartesian-pose-manager/build/orocos/gnulinux/rtt-fri-cartesian-pose-manager")
 import("rtt-fri-cartesian-pose-manager")
 loadComponent("test","CartesianPoseManager")
 setActivity("test",0.002,HighestPriority,ORO_SCHED_RT)
@@ -69,7 +69,7 @@ loadComponent("manip","ManipEstimator")
 setActivity("manip",0.001,HighestPriority,ORO_SCHED_RT)
 manip.configure
 
-import("/home/sgo/git_repos/ManipubalityHRI/test_bridge/build/orocos/gnulinux/test_bridge")
+import("/home/kukalwr/git_repos/ManipubalityHRI/test_bridge/build/orocos/gnulinux/test_bridge")
 loadComponent("tt","test_bridge")
 setActivity("tt",0.001,HighestPriority,ORO_SCHED_RT)
 
@@ -85,8 +85,8 @@ manip.start
 
 
 
-import("rtt-manip-to-stiffness")
-loadComponent("stiff","ManipToStiffness")
+import("rtt-const-stiffness")
+loadComponent("stiff","ConstStiffness")
 setActivity("stiff",0.001,HighestPriority,ORO_SCHED_RT)
 stiff.configure
 stiff.start
@@ -103,6 +103,24 @@ connect("test.cart_pose_out_port", "lwr.des_cart_pose",cp)
 connect("test.cart_stiffdamp_out_port", "lwr.des_stiff_damp",cp)
 
 
+import("rtt-jr3-ft-sensor")
+loadComponent("jr3","RTT_JR3")
+setActivity("jr3",0.001,HighestPriority,ORO_SCHED_RT)
+jr3.configure
+jr3.start
+
+loadComponent("logger", "OCL::FileReporting")
+loadService("logger", "marshalling")
+connectPeers("logger", "manip")
+connectPeers("logger", "tt")
+connectPeers("logger", "jr3")
+connectPeers("logger","test")
+logger.reportPort("manip","manip_measure_out_port")
+logger.reportPort("tt","outport_grip")
+logger.reportPort("jr3","ForceTorqueOutputPort")
+logger.reportPort("test","cart_pose_loop_out_port")
+logger.configure
+#logger.start
 
 
 

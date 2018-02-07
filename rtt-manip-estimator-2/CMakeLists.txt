@@ -21,9 +21,9 @@ IF (geometry_msgs_FOUND)
         link_directories(${geometry_msgs_LIBRARY_DIR})
 ENDIF()
 
-INCLUDE_DIRECTORIES(/home/sgo/ws/underlay/src/rtt_ros_integration/rtt_rosclock/include/)
-INCLUDE_DIRECTORIES(/home/sgo/ws/underlay/src/rtt_ros_integration/rtt_roscomm/include/)
-link_directories(/home/sgo/ws/underlay/devel/lib)
+INCLUDE_DIRECTORIES(~/ws/underlay/src/rtt_ros_integration/rtt_rosclock/include/)
+INCLUDE_DIRECTORIES(~/ws/underlay/src/rtt_ros_integration/rtt_roscomm/include/)
+link_directories(~/ws/underlay/devel/lib)
 
 #include_directories(${geometry_msgs_INCLUDE_DIRS})
 

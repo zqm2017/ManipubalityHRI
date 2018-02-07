@@ -100,5 +100,13 @@ private:
     RTT::OutputPort<double> manip_ros_out_port;
     double manip_ros_out_data;
 
+
+    // Filter_param
+
+    double _a,_b,_xml, _filter_counter, _filter_input, alpha;
+    std::vector<double> _filter_vector_in,_filter_vector_out;
+    // Force transmission
+    Eigen::Vector3d u,_u;
+
 };
 #endif

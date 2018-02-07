@@ -7,7 +7,7 @@ import("rtt_rosnode")
 import("rtt_sensor_msgs")
 import("rtt_visualization_msgs")
 
-import("/home/sgo/git_repos/ManipubalityHRI/test_bridge/build/orocos/gnulinux/test_bridge")
+import("/home/kukalwr/git_repos/ManipubalityHRI/test_bridge/build/orocos/gnulinux/test_bridge")
 loadComponent("tt","test_bridge")
 setActivity("tt",0.001,HighestPriority,ORO_SCHED_RT)
 

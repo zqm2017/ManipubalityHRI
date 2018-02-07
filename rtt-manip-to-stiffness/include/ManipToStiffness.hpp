@@ -37,7 +37,7 @@ private:
 
     void initializePorts();
 
-    double manip_factor, manip_min, manip_max, stiffness_min, stiffness_max;
+    double manip_factor, manip_min, manip_max, stiffness_min, stiffness_max, max_rot_stiff;
 
 
 

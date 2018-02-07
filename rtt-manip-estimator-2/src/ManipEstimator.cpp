@@ -12,12 +12,14 @@ ManipEstimator::ManipEstimator(std::string const& name) : TaskContext(name){
 
     q_hand_init.resize(DOF_HAND);
     q_hand_out.resize(DOF_HAND);
-
+    u.setZero(3);
+    _filter_counter= 0;
+    alpha=0.50;
 
     /** Default arm parameters **/
     hand_base = "left_shoulder_forward_link";
     hand_eef = "left_wrist_link";
-    hand_urdf_path = "/home/sgo/git_repos/ManipubalityHRI/URDF_Generator/gen_arm.urdf";     //TODO Add the tool to the urdf  and load the correct urdf later
+    hand_urdf_path = "/home/kukalwr/git_repos/ManipubalityHRI/URDF_Generator/gen_arm.urdf";     //TODO Add the tool to the urdf  and load the correct urdf later
 
     addProperty("hand_base",hand_base)
             .doc("Name of the base joint of the human arm");
@@ -25,6 +27,10 @@ ManipEstimator::ManipEstimator(std::string const& name) : TaskContext(name){
             .doc("Name of the wrist joint or the holding position");
     addProperty("urdf_path",hand_urdf_path)
             .doc("Path of the hand urdf");
+    addProperty("_xml",_xml)
+            .doc("filter_param");
+    addProperty("alpha",alpha)
+            .doc("filter_param");
 
 
     /** Loading the human arm model and crearing a tree **/
@@ -136,18 +142,53 @@ void ManipEstimator::updateHook(){
 
     me_axis = svd_r.matrixU() * svd_r.singularValues();
 
-    //std::cout<<"Elipsoid--> x: "<<me_axis.data()[0]<<" y: "<<me_axis.data()[1]<<" z: "<<me_axis.data()[2]<<std::endl;
+    //RTT::log(RTT::Critical)<<"Elipsoid--> x: "<<me_axis.data()[0]<<" y: "<<me_axis.data()[1]<<" z: "<<me_axis.data()[2]<<std::endl;
 
     manipulability = sqrt((hand_jac.data.block<3,DOF_HAND>(0,0)*hand_jac.data.block<3,DOF_HAND>(0,0).transpose()).determinant());
 
 
     //std::cout<<"Manip"<<manipulability<<std::endl;
     manip_elipse_out_port.write(me_axis);
-    manip_measure_out_port.write(manipulability);
 
-//RTT::log(RTT::Critical) << manipulability<< " :Manip"<<RTT::endlog();
+
+    //RTT::log(RTT::Critical) << manipulability<< " :Manip"<<RTT::endlog();
     arm_conf_out_data.header.stamp = rtt_rosclock::host_now();
     arm_conf_out_port.write(arm_conf_out_data);
+
+
+
+    /** Force Transmission Ratio **/
+
+    Eigen::Vector3d u (cur_grip_pose_in_data.position.x,cur_grip_pose_in_data.position.x,cur_grip_pose_in_data.position.x);
+    _u = u/u.norm();
+    double alpha = u.transpose()*((hand_jac.data.block<3,DOF_HAND>(0,0)*hand_jac.data.block<3,DOF_HAND>(0,0).transpose()))*u;
+
+    RTT::log(RTT::Info) << "Force Transmission Ratio" << alpha <<std::endl;
+
+
+    ///* TO DO: Set proper filter parameters later*//
+
+
+    /*// Filtering using lowpass filter
+    _filter_input = manipulability;
+    _filter_vector_in.push_back(_filter_input);
+    //_stiffness_vector_in(_stiffness_counter) = _stiffness;
+    _a = (1-alpha)/(1+alpha);
+    _b = (1-_a)/2;
+    _xml= 0.0001;
+    if(_filter_counter==0)
+        _filter_input = _filter_vector_in[_filter_counter]+_xml;
+    else
+        _filter_input = _b*_filter_vector_in[_filter_counter]+ _b*_filter_vector_in[_filter_counter-1]+ _a*_filter_vector_out[_filter_counter-1];
+
+    _filter_vector_out.push_back(_filter_input);
+    //_stiffness_vector_out(_stiffness_counter) = _filtered_stiffness;
+    _filter_counter++;
+
+    // _filter_input will be the current filtered manip
+    //manipulability = _filter_input;*/
+
+    manip_measure_out_port.write(manipulability);
 
     manip_ros_out_port.write(manipulability);
 }

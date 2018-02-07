@@ -37,9 +37,9 @@ private:
 
     void initializePorts();
 
-    double manip_stiffness, manip_stiffness_x, manip_stiffness_y, manip_stiffness_z, manip_min, manip_max, stiffness_min, stiffness_max;
+    double manip_stiffness, manip_stiffness_x, manip_stiffness_y, manip_stiffness_z, scale_min, scale_max,scale_factor, stiffness_min, stiffness_max_trans, stiffness_max_rot;
 
-    double elipse_x, elipse_y, elipse_z;
+    double elipse_x, elipse_y, elipse_z, max_elipse, scaled_x, scaled_y, scaled_z;
 
     double manip_calculate(double);
 

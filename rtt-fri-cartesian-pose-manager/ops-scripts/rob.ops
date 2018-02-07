@@ -35,12 +35,12 @@ resolution.angles[6] = -0.3
 
 
 var eigen_vector cart_stiff = eigen_vector(6)
-cart_stiff[0] = 10.00
-cart_stiff[1] = 10.00
-cart_stiff[2] = 10.00
-cart_stiff[3] = 10.00
-cart_stiff[4] = 10.00
-cart_stiff[5] = 10.00
+cart_stiff[0] = 2200.00
+cart_stiff[1] = 2200.00
+cart_stiff[2] = 2200.00
+cart_stiff[3] = 2200.00
+cart_stiff[4] = 2200.00
+cart_stiff[5] = 2200.00
 
 
 var eigen_vector cart_damp = eigen_vector(6)
@@ -64,7 +64,7 @@ connect("test.cart_pose_loop_out_port", "lwr.des_cart_pose",cp)
 connect("test.cart_pose_out_port", "lwr.des_cart_pose",cp)
 
 connect("test.cart_stiffdamp_out_port", "lwr.des_stiff_damp",cp)
-connect("test.cur_force_torque_in_port", "lwr.current_cart_force_torque",cp)
+#connect("test.cur_force_torque_in_port", "lwr.current_cart_force_torque",cp)
 
 #connect("test.red_res_out_port","lwr.des_null_space",cp)
 test.start

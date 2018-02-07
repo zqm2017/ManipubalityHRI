@@ -54,23 +54,6 @@ void ManipToStiffness::updateHook(){
         manip_factor = ((stiffness_min-stiffness_max)/(manip_max-manip_min))*(manip_measure_in_data-manip_min)+stiffness_max;
 
     }
-    
-        
-    force_transmission_ratio_in_flow = force_transmission_ratio_in_port.read(force_transmission_ratio_in_data);
-    if(force_transmission_ratio_in_data < ft_min){
-        manip_factor = stiffness_min;
-        // stiff = stiffness_min;
-    }
-    else if(force_transmission_ratio_in_data > ft_max){
-        manip_factor = stiffness_max;
-        // stiff = stiffness_max;
-    }
-    else if(force_transmission_ratio_in_data <= ft_max && force_transmission_ratio_in_data >= ft_min)
-    {
-        manip_factor = ((stiffness_max-stiffness_min)/(ft_max-ft_min))*(force_transmission_ratio_in_data-ft_min)+stiffness_min;
-        // stiff = ((stiffness_max-stiffness_min)/(ft_max-ft_min))*(force_transmission_ratio_in_data-ft_min)+stiffness_min;
-    }
-        
 
     //std::cout<<" Stiffness: "<< manip_factor<<std::endl;
 
@@ -108,7 +91,30 @@ void ManipToStiffness::updateHook(){
     // Filter these output later
     cart_stiffdamp_out_port.write(cart_stiffdamp_out_data);
 
+    
+    // adapt stiffness to force-transmission-ratio 
+    force_transmission_ratio_in_flow = force_transmission_ratio_in_port.read(force_transmission_ratio_in_data);
+    if(force_transmission_ratio_in_data < ft_min){
+        stiff_ft = stiffness_min;
+    }
+    else if(force_transmission_ratio_in_data > ft_max){
+        stiff_ft = stiffness_max;
+    }
+    else if(force_transmission_ratio_in_data <= ft_max && force_transmission_ratio_in_data >= ft_min)
+    {
+        stiff_ft = ((stiffness_max-stiffness_min)/(ft_max-ft_min))*(force_transmission_ratio_in_data-ft_min)+stiffness_min;
+    }
+    
+    for(int i = 0; i < 3; ++i){
+        cart_stiffdamp_outdata.stiffness(i) = stiff_ft;
+    }
+    for(int i = 3; i < 6; ++i){
+        cart_stiffdamp_outdata.stiffness(i) = stiff_ft*(max_rot_stiff/stiffness_max);
+    }
+    cart_stiffdamp_out_port.write(cart_stiffdamp_out_data);
+        
 
+    
 }
 
 
